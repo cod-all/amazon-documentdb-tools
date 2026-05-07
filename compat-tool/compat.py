@@ -234,7 +234,7 @@ def main(args):
     parser.add_argument("--excluded-extensions", dest="excludedExtensions", action="store", default="NONE", help="Filename extensions to exclude from scanning, comma separated", required=False)
     parser.add_argument("--included-extensions", dest="includedExtensions", action="store", default="ALL", help="Filename extensions to include in scanning, comma separated", required=False)
     parser.add_argument("--excluded-directories", dest="excludedDirectories", action="store", default="NONE", help="directories to exclude from scanning, comma separated", required=False)
-    parser.add_argument("--version", dest="version", action="store", default="5.0", help="Check for DocumentDB version compatibility (default is 5.0)", choices=versions, required=False)
+    parser.add_argument("--version", dest="version", action="store", default="8.0", help="Check for DocumentDB version compatibility (default is 8.0)", choices=versions, required=False)
 
     args = parser.parse_args()
     
