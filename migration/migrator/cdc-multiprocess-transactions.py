@@ -23,10 +23,14 @@ def oplog_processor(threadnum, appConfig, perfQ):
     if appConfig['verboseLogging']:
         logIt(threadnum,'thread started')
 
-    c = pymongo.MongoClient(host=appConfig["sourceUri"],appname='migrcdc')
+    myAppname = None
+    if (threadnum == 0):
+        myAppname = 'migrcdc'
+
+    c = pymongo.MongoClient(host=appConfig["sourceUri"],appname=myAppname)
     oplog = c.local.oplog.rs
 
-    destConnection = pymongo.MongoClient(host=appConfig["targetUri"],appname='migrcdc')
+    destConnection = pymongo.MongoClient(host=appConfig["targetUri"],appname=myAppname)
     destDatabase = destConnection[appConfig["targetNs"].split('.',1)[0]]
     destCollection = destDatabase[appConfig["targetNs"].split('.',1)[1]]
 
@@ -194,11 +198,15 @@ def change_stream_processor(threadnum, appConfig, perfQ):
     if appConfig['verboseLogging']:
         logIt(threadnum,'thread started')
 
-    sourceConnection = pymongo.MongoClient(host=appConfig["sourceUri"],appname='migrcdc')
+    myAppname = None
+    if (threadnum == 0):
+        myAppname = 'migrcdc'
+
+    sourceConnection = pymongo.MongoClient(host=appConfig["sourceUri"],appname=myAppname)
     sourceDb = sourceConnection[appConfig["sourceNs"].split('.',1)[0]]
     sourceColl = sourceDb[appConfig["sourceNs"].split('.',1)[1]]
 
-    destConnection = pymongo.MongoClient(host=appConfig["targetUri"],appname='migrcdc')
+    destConnection = pymongo.MongoClient(host=appConfig["targetUri"],appname=myAppname)
     destDatabase = destConnection[appConfig["targetNs"].split('.',1)[0]]
     destCollection = destDatabase[appConfig["targetNs"].split('.',1)[1]]
 
