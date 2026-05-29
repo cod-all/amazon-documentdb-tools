@@ -192,9 +192,6 @@ def oplog_processor(threadnum, appConfig, perfQ):
 def change_stream_processor(threadnum, appConfig, perfQ):
     warnings.filterwarnings("ignore","You appear to be connected to a DocumentDB cluster.")
 
-    #orderedBulkWrite = False
-    orderedBulkWrite = True
-
     if appConfig['verboseLogging']:
         logIt(threadnum,'thread started')
 
@@ -324,21 +321,21 @@ def change_stream_processor(threadnum, appConfig, perfQ):
             if ((numCurrentBulkOps >= appConfig["maxOperationsPerBatch"]) or (time.time() >= (lastBatch + appConfig["maxSecondsBetweenBatches"]))) and (numCurrentBulkOps > 0):
                 if not appConfig['dryRun']:
                     try:
-                        result = destCollection.bulk_write(bulkOpList,ordered=orderedBulkWrite)
+                        result = destCollection.bulk_write(bulkOpList,ordered=True)
                         #with destConnection.start_session() as session:
                         #   # Start transaction
                         #   with session.start_transaction():
                         #       # Execute bulk write within the transaction
-                        #       result = destCollection.bulk_write(bulkOpList,ordered=orderedBulkWrite,session=session)
+                        #       result = destCollection.bulk_write(bulkOpList,ordered=True,session=session)
 
                     except:
                         # replace inserts as replaces
-                        result = destCollection.bulk_write(bulkOpListReplace,ordered=orderedBulkWrite)
+                        result = destCollection.bulk_write(bulkOpListReplace,ordered=True)
                         #with destConnection.start_session() as session:
                         #   # Start transaction
                         #   with session.start_transaction():
                         #       # Execute bulk write within the transaction
-                        #       result = destCollection.bulk_write(bulkOpListReplace,ordered=orderedBulkWrite,session=session)
+                        #       result = destCollection.bulk_write(bulkOpListReplace,ordered=True,session=session)
 
                 bulkOpList = []
                 bulkOpListReplace = []
@@ -353,10 +350,10 @@ def change_stream_processor(threadnum, appConfig, perfQ):
     if (numCurrentBulkOps > 0):
         if not appConfig['dryRun']:
             try:
-                result = destCollection.bulk_write(bulkOpList,ordered=orderedBulkWrite)
+                result = destCollection.bulk_write(bulkOpList,ordered=True)
             except:
                 # replace inserts as replaces
-                result = destCollection.bulk_write(bulkOpListReplace,ordered=orderedBulkWrite)
+                result = destCollection.bulk_write(bulkOpListReplace,ordered=True)
         perfQ.put({"name":"batchCompleted","operations":numCurrentBulkOps,"endts":endTs,"processNum":threadnum,"resumeToken":resumeToken})
         bulkOpList = []
         bulkOpListReplace = []
@@ -374,7 +371,7 @@ def get_resume_token(appConfig):
 
     logIt(-1,'getting current change stream resume token')
 
-    sourceConnection = pymongo.MongoClient(host=appConfig["sourceUri"],appname='migrcdc')
+    sourceConnection = pymongo.MongoClient(host=appConfig["sourceUri"])
     sourceDb = sourceConnection[appConfig["sourceNs"].split('.',1)[0]]
     sourceColl = sourceDb[appConfig["sourceNs"].split('.',1)[1]]
 
@@ -641,7 +638,7 @@ def main():
     else:
         if appConfig["startPosition"] == "0":
             # start with first oplog entry
-            c = pymongo.MongoClient(host=appConfig["sourceUri"],appname='migrcdc')
+            c = pymongo.MongoClient(host=appConfig["sourceUri"])
             oplog = c.local.oplog.rs
             first = oplog.find().sort('$natural', pymongo.ASCENDING).limit(1).next()
             appConfig["startTs"] = first['ts']
