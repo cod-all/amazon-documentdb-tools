@@ -234,7 +234,7 @@ def change_stream_processor(threadnum, appConfig, perfQ):
     if (appConfig["startTs"] == "RESUME_TOKEN"):
         stream = sourceColl.watch(resume_after={'_data': appConfig["startPosition"]}, full_document='updateLookup', pipeline=[{'$match': {'operationType': {'$in': ['insert','update','replace','delete']}}},{'$project':{'updateDescription':0}}])
     else:
-        stream = sourceColl.watch(start_at_operation_time=endTs, max_await_time_ms=100, full_document='updateLookup', pipeline=[{'$match': {'operationType': {'$in': ['insert','update','replace','delete']}}},{'$project':{'updateDescription':0}}])
+        stream = sourceColl.watch(start_at_operation_time=endTs, full_document='updateLookup', pipeline=[{'$match': {'operationType': {'$in': ['insert','update','replace','delete']}}},{'$project':{'updateDescription':0}}])
 
     if appConfig['verboseLogging']:
         if (appConfig["startTs"] == "RESUME_TOKEN"):
